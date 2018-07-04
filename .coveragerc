@@ -1,0 +1,3 @@
+[run]
+source = facebook_exporter
+omit = facebook_exporter/test*

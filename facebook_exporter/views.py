@@ -1,4 +1,8 @@
 from pyramid.view import view_config
+from pyramid.view import forbidden_view_config
+from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPUnauthorized
+from pyramid.security import forget
 import base64
 from collections import defaultdict
 
@@ -18,7 +22,7 @@ def image_link(url):
     return url[0]
 
 
-@view_config(route_name='index', renderer='templates/index.html')
+@view_config(route_name='index', renderer='templates/index.html', permission='view')
 def index(request):
     result = request.dbsession.execute('select 1')
     return {'project': result}
@@ -58,7 +62,7 @@ def export(request):
     return {'offers': offers}
 
 
-@view_config(route_name='campaigns', renderer='json')
+@view_config(route_name='campaigns', renderer='json', permission='view')
 def campaigns(request):
     column = defaultdict(lambda: 'Title')
     column['0'] = 'Title'
@@ -114,3 +118,13 @@ def campaigns(request):
         'recordsFiltered': recordsFiltered,
         'data': data
     }
+
+
+@forbidden_view_config()
+def forbidden_view(request):
+    if request.authenticated_userid is None:
+        response = HTTPUnauthorized()
+        response.headers.update(forget(request))
+    else:
+        response = HTTPForbidden()
+    return response

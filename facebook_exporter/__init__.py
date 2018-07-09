@@ -1,6 +1,11 @@
 # -*- coding: UTF-8 -*-
 __author__ = 'kuzmenko-pavel'
+from pyramid.authentication import BasicAuthAuthenticationPolicy
+from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
+from pyramid.security import ALL_PERMISSIONS
+from pyramid.security import Allow
+from pyramid.security import Authenticated
 
 
 def main(global_config, **settings):
@@ -12,10 +17,25 @@ def main(global_config, **settings):
     return app
 
 
+def check_credentials(username, password, request):
+    if username == 'yottos' and password == '123qwe':
+        return []
+
+
+class Root:
+    __acl__ = (
+        (Allow, Authenticated, ALL_PERMISSIONS),
+    )
+
+
 def includeme(config):
     config.include('pyramid_jinja2')
     config.add_jinja2_renderer('.html')
     config.add_jinja2_search_path("facebook_exporter:templates")
+    authn_policy = BasicAuthAuthenticationPolicy(check_credentials)
+    config.set_authentication_policy(authn_policy)
+    config.set_authorization_policy(ACLAuthorizationPolicy())
+    config.set_root_factory(lambda request: Root())
     config.include('.models')
     config.include('.routes')
     config.commit()

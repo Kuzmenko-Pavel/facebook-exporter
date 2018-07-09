@@ -33,7 +33,7 @@ from zope.sqlalchemy import register
 
 
 def get_engine(settings, prefix='sqlalchemy.'):
-    return engine_from_config(settings, prefix, echo=True)
+    return engine_from_config(settings, prefix, echo=False)
 
 
 def get_session_factory(engine):

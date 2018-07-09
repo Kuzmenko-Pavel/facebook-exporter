@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">
+    <channel>
+        <title></title>
+        <link>https://yottos.com</link>
+        <description></description>
+        {% for offer in offers %}
+        <item>
+            <g:id>{{ offer.id }}</g:id>
+            <g:title>{{ offer.title }}</g:title>
+            <g:description>{{ offer.description }}</g:description>
+            <g:link>{{ offer.url }}</g:link>
+            <g:image_link>{{ offer.image }}</g:image_link>
+            <g:brand>Example</g:brand>
+            <g:condition>new</g:condition>
+            <g:availability>in stock</g:availability>
+            <g:price>{{ offer.price }}</g:price>
+        </item>
+        {% endfor %}
+    </channel>
+</rss>

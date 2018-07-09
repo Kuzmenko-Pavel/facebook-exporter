@@ -1,3 +1,30 @@
 {% extends "main.html" %}
 {% block content %}
+<table id="campaigns" class="display">
+        <thead>
+            <tr>
+                <th>Campaign</th>
+                <th>Account</th>
+                <th>Manager</th>
+                <th>Export Link</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Campaign</th>
+                <th>Account</th>
+                <th>Manager</th>
+                <th>Export Link</th>
+            </tr>
+        </tfoot>
+    </table>
+<script>
+    $(document).ready(function() {
+    $('#campaigns').DataTable( {
+        "processing": true,
+        "serverSide": true,
+        "ajax": "{{'campaigns'|route_path_filter}}"
+        } );
+    } );
+</script>
 {% endblock content %}

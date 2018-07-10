@@ -39,7 +39,7 @@ def export(request):
                         Lot.LotID AS LotID,
                         Lot.Title AS Title,
                         ISNULL(Lot.Descript, '') AS Description,
-                        ISNULL(lot.Price, '') Price,
+                        ISNULL(lot.Price, '0') Price,
                         ExternalURL AS UrlToMarket,
                         Lot.ImgURL 
                         FROM Lot 

@@ -14,7 +14,7 @@ def redirect_link(url, guid, campaign_guid):
         offer_url,
         campaign_guid
     )).encode('utf-8'))
-    return '/click?%s' % base64_url.decode('utf-8')
+    return 'https://click.yottos.com/click/fb?%s' % base64_url.decode('utf-8')
 
 
 def image_link(url):

@@ -28,7 +28,7 @@ def index(request):
     return {'project': result}
 
 
-@view_config(route_name='export', renderer='templates/xml.html')
+@view_config(route_name='export', renderer='templates/xml.html', permission='view')
 def export(request):
     request.response.content_type = 'application/xml'
     offers = []

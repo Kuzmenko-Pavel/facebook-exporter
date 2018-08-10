@@ -36,17 +36,17 @@ def export(request):
     if id:
         q = '''
                         SELECT TOP %d  
-                        Lot.LotID AS LotID,
-                        Lot.Title AS Title,
-                        ISNULL(Lot.Descript, '') AS Description,
-                        ISNULL(lot.Price, '0') Price,
-                        ExternalURL AS UrlToMarket,
-                        Lot.ImgURL 
-                        FROM Lot 
-                        INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = Lot.LotID
-                        INNER JOIN Advertise ON Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
-                        WHERE Advertise.AdvertiseID = '%s' AND Lot.ExternalURL <> '' 
-                            AND Lot.isTest = 1 AND lot.isAdvertising = 1
+                        View_Lot.LotID AS LotID,
+                        View_Lot.Title AS Title,
+                        ISNULL(View_Lot.Descript, '') AS Description,
+                        ISNULL(View_Lot.Price, '0') Price,
+                        View_Lot.ExternalURL AS UrlToMarket,
+                        View_Lot.ImgURL 
+                        FROM View_Lot 
+                        INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
+                        INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
+                        WHERE View_Advertise.AdvertiseID = '%s' AND View_Lot.ExternalURL <> '' 
+                            AND View_Lot.isTest = 1 AND View_Lot.isAdvertising = 1
                         ''' % (100, id)
         result = request.dbsession.execute(q)
         for offer in result:
@@ -78,7 +78,7 @@ def campaigns(request):
     data = []
     result = request.dbsession.execute('''
                                 SELECT count(*)
-                                FROM Advertise a
+                                FROM View_Advertise a
                                 LEFT OUTER JOIN Users u ON u.UserID = a.UserID
                                 LEFT OUTER JOIN Manager m  ON u.ManagerID = m.id
                                 WHERE m.Name IS NOT NULL AND isActive=1
@@ -101,7 +101,7 @@ def campaigns(request):
                             Title,
                             Login, 
                             m.Name AS Manager
-                            FROM Advertise a
+                            FROM View_Advertise a
                             LEFT OUTER JOIN Users u ON u.UserID = a.UserID
                             LEFT OUTER JOIN Manager m  ON u.ManagerID = m.id
                             WHERE %s ORDER BY %s %s

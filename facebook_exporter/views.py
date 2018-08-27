@@ -1,10 +1,14 @@
+import os
 from pyramid.view import view_config
 from pyramid.view import forbidden_view_config
+from pyramid.response import FileResponse
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.security import forget
 import base64
 from collections import defaultdict
+
+from facebook_exporter.tasks import create_feed
 
 
 def redirect_link(url, guid, campaign_guid):
@@ -32,32 +36,46 @@ def index(request):
 def export(request):
     request.response.content_type = 'application/xml'
     offers = []
-    id = request.matchdict.get('id')
+    count = request.GET.get('count', 1000)
+    static = True if request.GET.get('static') == 'true' else False
+    id = request.matchdict.get('id', '').upper()
+    dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static/xml')
+    file_path = os.path.join(dir_path, id + ".xml")
+    file_exists = os.path.isfile(file_path)
     if id:
-        q = '''
-                        SELECT TOP %d  
-                        View_Lot.LotID AS LotID,
-                        View_Lot.Title AS Title,
-                        ISNULL(View_Lot.Descript, '') AS Description,
-                        ISNULL(View_Lot.Price, '0') Price,
-                        View_Lot.ExternalURL AS UrlToMarket,
-                        View_Lot.ImgURL 
-                        FROM View_Lot 
-                        INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
-                        INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
-                        WHERE View_Advertise.AdvertiseID = '%s' AND View_Lot.ExternalURL <> '' 
-                            AND View_Lot.isTest = 1 AND View_Lot.isAdvertising = 1
-                        ''' % (100, id)
-        result = request.dbsession.execute(q)
-        for offer in result:
-            offers.append({
-                'id': offer[0],
-                'title': offer[1],
-                'description': offer[2],
-                'price': offer[3],
-                'url': redirect_link(offer[4], offer[0], id),
-                'image': image_link(offer[5]),
-            })
+        if file_exists and static:
+            response = FileResponse(
+                file_path,
+                request=request,
+                content_type=request.response.content_type
+            )
+            return response
+        if static:
+            create_feed.delay(id)
+    q = '''
+                    SELECT TOP %s  
+                    View_Lot.LotID AS LotID,
+                    View_Lot.Title AS Title,
+                    ISNULL(View_Lot.Descript, '') AS Description,
+                    ISNULL(View_Lot.Price, '0') Price,
+                    View_Lot.ExternalURL AS UrlToMarket,
+                    View_Lot.ImgURL 
+                    FROM View_Lot 
+                    INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
+                    INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
+                    WHERE View_Advertise.AdvertiseID = '%s' AND View_Lot.ExternalURL <> '' 
+                        AND View_Lot.isTest = 1 AND View_Lot.isAdvertising = 1
+                    ''' % (count, id)
+    result = request.dbsession.execute(q)
+    for offer in result:
+        offers.append({
+            'id': offer[0],
+            'title': offer[1],
+            'description': offer[2],
+            'price': offer[3],
+            'url': redirect_link(offer[4], offer[0], id),
+            'image': image_link(offer[5]),
+        })
 
     return {'offers': offers}
 
@@ -100,16 +118,21 @@ def campaigns(request):
                             a.AdvertiseID AS AdvertiseID,
                             Title,
                             Login, 
-                            m.Name AS Manager
+                            m.Name AS Manager,
+                            CASE WHEN MarketID IS NULL THEN 'false' ELSE 'true' END Market
                             FROM View_Advertise a
                             LEFT OUTER JOIN Users u ON u.UserID = a.UserID
                             LEFT OUTER JOIN Manager m  ON u.ManagerID = m.id
+                            LEFT OUTER JOIN MarketByAdvertise mark ON mark.AdvertiseID = a.AdvertiseID
                             WHERE %s ORDER BY %s %s
                             ''' % (' AND '.join(q), oreder_column, oreder)
     result = request.dbsession.execute(sql)
     for campaign in result:
         data.append((campaign[1], campaign[2], campaign[3],
-                     "<a href='%s' target='_blank''>File Export</a>" % request.route_url('export', id=campaign[0])))
+                     "<a href='%s' target='_blank''>File Export</a>" % request.route_url('export',
+                                                                                         id=campaign[0],
+                                                                                         _query={'static': campaign[4]})
+                     ))
     recordsFiltered = len(data)
     data = data[start:start+length]
     return {

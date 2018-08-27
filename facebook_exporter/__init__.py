@@ -12,7 +12,7 @@ def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
     config = Configurator(settings=settings)
-    includeme(config)
+    includeme(config, global_config)
     app = config.make_wsgi_app()
     return app
 
@@ -28,7 +28,7 @@ class Root:
     )
 
 
-def includeme(config):
+def includeme(config, global_config):
     config.include('pyramid_jinja2')
     config.add_jinja2_renderer('.html')
     config.add_jinja2_search_path("facebook_exporter:templates")
@@ -36,6 +36,8 @@ def includeme(config):
     config.set_authentication_policy(authn_policy)
     config.set_authorization_policy(ACLAuthorizationPolicy())
     config.set_root_factory(lambda request: Root())
+    config.include('pyramid_celery')
+    config.configure_celery(global_config['__file__'])
     config.include('.models')
     config.include('.routes')
     config.commit()

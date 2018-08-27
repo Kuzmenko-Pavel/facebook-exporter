@@ -37,7 +37,7 @@ def check_feed():
 
 @app.task(ignore_result=True)
 def create_feed(id):
-        count = 2000000
+        count = 1000
         q = '''
                         SELECT TOP %s  
                         View_Lot.LotID AS LotID,
@@ -45,7 +45,8 @@ def create_feed(id):
                         ISNULL(View_Lot.Descript, '') AS Description,
                         ISNULL(View_Lot.Price, '0') Price,
                         View_Lot.ExternalURL AS UrlToMarket,
-                        View_Lot.ImgURL 
+                        View_Lot.ImgURL,
+                        RetargetingID 
                         FROM View_Lot 
                         INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
                         INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
@@ -63,8 +64,11 @@ def create_feed(id):
                     result = dbsession.execute(q)
                     for offer in result:
                         try:
+                            offer_id = '%s...%s' % (offer[0], id)
+                            if offer[6]:
+                                offer_id = '%s...%s' % (offer[6], id)
                             data = tpl_xml_offer % (
-                                offer[0],
+                                offer_id,
                                 html.escape(offer[1]),
                                 html.escape(offer[2]),
                                 offer[3],

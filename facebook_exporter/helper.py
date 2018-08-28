@@ -1,4 +1,7 @@
 import base64
+import re
+
+price_clean = re.compile(r'[^0-9]')
 
 
 def redirect_link(url, guid, campaign_guid):
@@ -14,3 +17,8 @@ def redirect_link(url, guid, campaign_guid):
 def image_link(url):
     url = url.split(',')
     return url[0]
+
+
+def price(p):
+    p = price_clean.sub('', p)
+    return '%s UAH' % p

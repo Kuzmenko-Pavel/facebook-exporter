@@ -8,7 +8,7 @@ from pyramid.security import forget
 from collections import defaultdict
 
 from facebook_exporter.tasks import create_feed
-from facebook_exporter.helper import redirect_link, image_link
+from facebook_exporter.helper import redirect_link, image_link, price
 
 
 @view_config(route_name='index', renderer='templates/index.html', permission='view')
@@ -61,7 +61,7 @@ def export(request):
             'id': offer_id,
             'title': offer[1],
             'description': offer[2],
-            'price': offer[3],
+            'price': price(offer[3]),
             'url': redirect_link(offer[4], offer[0], id),
             'image': image_link(offer[5]),
         })

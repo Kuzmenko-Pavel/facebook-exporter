@@ -45,7 +45,8 @@ def export(request):
                     ISNULL(View_Lot.Price, '0') Price,
                     View_Lot.ExternalURL AS UrlToMarket,
                     View_Lot.ImgURL,
-                    RetargetingID
+                    RetargetingID,
+                    View_Lot.Auther
                     FROM View_Lot 
                     INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
                     INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
@@ -54,9 +55,9 @@ def export(request):
                     ''' % (count, id)
     result = request.dbsession.execute(q)
     for offer in result:
-        offer_id = '%s...%s' % (offer[0], id)
+        offer_id = '%s...%s' % (offer[0], offer[7])
         if offer[6]:
-            offer_id = '%s...%s' % (offer[6], id)
+            offer_id = '%s...%s' % (offer[6], offer[7])
         offers.append({
             'id': offer_id,
             'title': str(offer[1]).capitalize(),

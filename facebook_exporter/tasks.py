@@ -15,6 +15,7 @@ tpl_xml_start = '''<?xml version="1.0"?>\n<rss xmlns:g="http://base.google.com/n
 tpl_xml_offer = '''\n<item>\n<g:id>%s</g:id>\n<g:title>%s</g:title>\n<g:description>%s</g:description>
 <g:link>%s</g:link>\n<g:image_link>%s</g:image_link>\n<g:price>%s</g:price>\n<g:condition>new</g:condition>
 <g:availability>in stock</g:availability>
+<g:google_product_category>111</g:google_product_category>
 <g:gtin>2112345678900</g:gtin>
 <g:brand>yottos.com</g:brand>
 </item>'''
@@ -75,8 +76,8 @@ def create_feed(id):
                     offer_id = '%s...%s' % (offer[6], id)
                 data = tpl_xml_offer % (
                     offer_id,
-                    html.escape(offer[1]),
-                    html.escape(offer[2]),
+                    html.escape(str(offer[1]).capitalize()),
+                    html.escape(str(offer[2]).capitalize()),
                     redirect_link(offer[4], offer[0], id),
                     image_link(offer[5]),
                     price(offer[3])

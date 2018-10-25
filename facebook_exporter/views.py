@@ -35,8 +35,8 @@ def export(request):
                 content_type=request.response.content_type
             )
             return response
-        if static:
-            create_feed.delay(id)
+        # if static:
+        #     create_feed.delay(id)
     q = '''
                     SELECT TOP %s  
                     View_Lot.LotID AS LotID,

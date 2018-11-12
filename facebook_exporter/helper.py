@@ -1,5 +1,6 @@
 import base64
 import re
+from random import randint
 
 price_clean = re.compile(r'[^0-9]')
 
@@ -11,7 +12,8 @@ def redirect_link(url, guid, campaign_guid):
         offer_url,
         campaign_guid
     )).encode('utf-8'))
-    return 'https://click.yottos.com/click/fb?%s' % base64_url.decode('utf-8')
+    params = 'a=%s&b=%s&c=%s' % (randint(1, 9), base64_url.decode('utf-8'), randint(1, 9))
+    return 'https://click.yottos.com/click/fb?%s' % params
 
 
 def image_link(url):

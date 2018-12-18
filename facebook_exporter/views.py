@@ -60,8 +60,8 @@ def export(request):
             offer_id = '%s...%s' % (offer[6], offer[7])
         offers.append({
             'id': offer_id,
-            'title': str(offer[1]).capitalize(),
-            'description': str(offer[2]).capitalize(),
+            'title': str(offer[1]),
+            'description': str(offer[2]),
             'price': price(offer[3]),
             'url': redirect_link(offer[4], offer[0], id),
             'image': image_link(offer[5]),

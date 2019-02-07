@@ -12,7 +12,7 @@ def redirect_link(url, guid, campaign_guid):
         offer_url,
         campaign_guid
     )).encode('utf-8'))
-    params = 'a=%s&b=%s&c=%s' % (randint(1, 9), base64_url.decode('utf-8'), randint(1, 9))
+    params = 'a=%s&amp;b=%s&amp;c=%s' % (randint(1, 9), base64_url.decode('utf-8'), randint(1, 9))
     return 'https://click.yottos.com/click/fb?%s' % params
 
 

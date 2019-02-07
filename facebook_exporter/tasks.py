@@ -77,8 +77,8 @@ def create_feed(id):
                     offer_id = '%s...%s' % (offer[6], offer[7])
                 data = tpl_xml_offer % (
                     offer_id,
-                    html.escape(str(offer[1])),
-                    html.escape(str(offer[2])),
+                    str(offer[1]),
+                    str(offer[2]),
                     redirect_link(offer[4], offer[0], id),
                     image_link(offer[5]),
                     price(offer[3])

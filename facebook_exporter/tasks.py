@@ -1,13 +1,12 @@
 # -*- coding: UTF-8 -*-
 __author__ = 'kuzmenko-pavel'
-import html
 import os
 import time
 from shutil import move
 
 from pyramid_celery import celery_app as app
 
-from facebook_exporter.helper import redirect_link, image_link, price
+from facebook_exporter.helper import redirect_link, image_link, price, text_normalize
 
 tpl_xml_start = '''<?xml version="1.0"?>\n<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">\n<channel>
 <title></title>\n<link>https://yottos.com</link>\n<description></description>'''
@@ -77,8 +76,8 @@ def create_feed(id):
                     offer_id = '%s...%s' % (offer[6], offer[7])
                 data = tpl_xml_offer % (
                     offer_id,
-                    html.escape(str(offer[1])),
-                    html.escape(str(offer[2])),
+                    text_normalize(str(offer[1])),
+                    text_normalize(str(offer[2])),
                     redirect_link(offer[4], offer[0], id),
                     image_link(offer[5]),
                     price(offer[3])

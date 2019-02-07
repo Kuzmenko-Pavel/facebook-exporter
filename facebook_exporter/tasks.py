@@ -42,7 +42,7 @@ def check_feed():
 @app.task(ignore_result=True)
 def create_feed(id):
     print('START CREATE FEED %s' % id)
-    count = 1000000
+    count = 2000000
     q = '''
                     SELECT TOP %s  
                     View_Lot.LotID AS LotID,

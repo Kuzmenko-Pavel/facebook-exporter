@@ -19,6 +19,7 @@ def redirect_link(url, guid, campaign_guid):
 
 def image_link(url):
     url = url.split(',')
+    url = [html.escape(x) for x in url]
     return url[0]
 
 

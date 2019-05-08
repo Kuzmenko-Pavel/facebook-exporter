@@ -3,7 +3,7 @@ import html
 import re
 from random import randint
 
-price_clean = re.compile(r'[^0-9]')
+price_clean = re.compile(r'[^0-9\.,]')
 
 
 def redirect_link(url, guid, campaign_guid):

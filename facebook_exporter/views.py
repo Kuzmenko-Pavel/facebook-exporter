@@ -1,20 +1,27 @@
 import os
-from pyramid.view import view_config
-from pyramid.view import forbidden_view_config
-from pyramid.response import FileResponse
-from pyramid.httpexceptions import HTTPForbidden
-from pyramid.httpexceptions import HTTPUnauthorized
-from pyramid.security import forget
 from collections import defaultdict
 
-from facebook_exporter.tasks import create_feed
+from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPUnauthorized
+from pyramid.response import FileResponse
+from pyramid.security import forget
+from pyramid.view import forbidden_view_config
+from pyramid.view import view_config
+
 from facebook_exporter.helper import redirect_link, image_link, price
+from facebook_exporter.tasks import create_feed, check_feed
 
 
 @view_config(route_name='index', renderer='templates/index.html', permission='view')
 def index(request):
     result = request.dbsession.execute('select 1')
     return {'project': result}
+
+
+@view_config(route_name='check_feed', renderer='json', permission='view')
+def check_feed(request):
+    check_feed.delay()
+    return {}
 
 
 @view_config(route_name='export', renderer='templates/xml.html', permission='view')
@@ -124,7 +131,7 @@ def campaigns(request):
                                                                                          _query={'static': campaign[4]})
                      ))
     recordsFiltered = len(data)
-    data = data[start:start+length]
+    data = data[start:start + length]
     return {
         'draw': draw,
         'recordsTotal': recordsTotal,

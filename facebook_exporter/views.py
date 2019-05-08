@@ -19,7 +19,7 @@ def index(request):
 
 
 @view_config(route_name='check_feed', renderer='json', permission='view')
-def check_feed(request):
+def check_feeds(request):
     check_feed.delay()
     return {}
 

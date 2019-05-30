@@ -27,7 +27,9 @@ def image_link(url):
     return url[0]
 
 
-def price(p):
+def price(p, default=None):
+    if default is None:
+        default = '0'
     p = price_clean.sub('', p)
     p = re.sub(r'\.+', ".", p)
     p = re.sub(r',+', ",", p)
@@ -35,7 +37,7 @@ def price(p):
         try:
             p = str(float(p))
         except Exception as e:
-            p = '0'
+            p = default
             print('price_float_dot', e)
     elif price_float_comma.match(p):
         try:
@@ -43,14 +45,14 @@ def price(p):
             p = str(float(p))
             p = p.replace('.', ',')
         except Exception as e:
-            p = '0'
+            p = default
             print('price_float_comma', e)
     else:
         p = price_int.sub('', p)
         try:
             p = str(int(p))
         except Exception as e:
-            p = '0'
+            p = default
             print('int', e)
 
     return '%s UAH' % p

@@ -66,7 +66,7 @@ def text_normalize(text):
 
 def uuid_to_long(uuid):
     try:
-        return int(UUID(uuid.encode('utf-8')).int >> 64 & ((1 << 64) / 2) - 2)
+        return int(UUID(uuid).int >> 64 & 9223372036854775806)
     except Exception as e:
         print(e)
-        return int(uuid4().int >> 64 & ((1 << 64) / 2) - 2)
+        return int(uuid4().int >> 64 & 9223372036854775806)

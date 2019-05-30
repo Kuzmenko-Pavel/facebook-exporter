@@ -116,9 +116,9 @@ def export_google(request):
                     ''' % (count, id)
     result = request.dbsession.execute(q)
     for offer in result:
-        offer_id = '%s...%s' % (uuid_to_long(offer[0].encode('utf-8')), uuid_to_long(offer[7].encode('utf-8')))
+        offer_id = '%s...%s' % (uuid_to_long(offer[0]), uuid_to_long(offer[7]))
         if offer[6]:
-            offer_id = '%s...%s' % (uuid_to_long(offer[6].encode('utf-8')), uuid_to_long(offer[7].encode('utf-8')))
+            offer_id = '%s...%s' % (uuid_to_long(offer[6]), uuid_to_long(offer[7]))
         offers.append({
             'id': offer_id,
             'title': str(offer[1]),

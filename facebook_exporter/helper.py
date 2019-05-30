@@ -1,5 +1,6 @@
 import base64
 import html
+from uuid import UUID, uuid4
 import re
 from random import randint
 
@@ -61,3 +62,11 @@ def text_normalize(text):
     if len(upper_words) >= len(words):
         text = text.capitalize()
     return html.escape(text)
+
+
+def uuid_to_long(uuid):
+    try:
+        return int(UUID(uuid.encode('utf-8')).int >> 64 & ((1 << 64) / 2) - 2)
+    except Exception as e:
+        print(e)
+        return int(uuid4().int >> 64 & ((1 << 64) / 2) - 2)

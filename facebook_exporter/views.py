@@ -9,7 +9,7 @@ from pyramid.security import forget
 from pyramid.view import forbidden_view_config
 from pyramid.view import view_config
 
-from facebook_exporter.helper import redirect_link, image_link, price
+from facebook_exporter.helper import redirect_link, image_link, price, uuid_to_long
 from facebook_exporter.tasks import create_feed, check_feed
 
 
@@ -116,9 +116,9 @@ def export_google(request):
                     ''' % (count, id)
     result = request.dbsession.execute(q)
     for offer in result:
-        offer_id = '%s...%s' % (offer[0], offer[7])
+        offer_id = '%s...%s' % (uuid_to_long(offer[0].encode('utf-8')), uuid_to_long(offer[7].encode('utf-8')))
         if offer[6]:
-            offer_id = '%s...%s' % (offer[6], offer[7])
+            offer_id = '%s...%s' % (uuid_to_long(offer[6].encode('utf-8')), uuid_to_long(offer[7].encode('utf-8')))
         offers.append({
             'id': offer_id,
             'title': str(offer[1]),

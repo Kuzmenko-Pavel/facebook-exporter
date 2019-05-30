@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:g="http://base.google.com/ns/1.0">
+	<title>Yottos</title>
+	<link rel="self" href="https://yottos.com"/>
+	<updated>{{ date }}</updated>
+    {% for offer in offers %}
+    <entry>
+        <g:id>{{ offer.id }}</g:id>
+        <g:title>{{ offer.title }}</g:title>
+        <g:description>{{ offer.description }}</g:description>
+        <g:link>{{ offer.url }}</g:link>
+        <g:image_link>{{ offer.image }}</g:image_link>
+        <g:condition>new</g:condition>
+        <g:availability>in stock</g:availability>
+        <g:price>{{ offer.price }}</g:price>
+        <g:gtin>2112345678900</g:gtin>
+        <g:brand>yottos.com</g:brand>
+    </entry>
+    {% endfor %}
+</feed>

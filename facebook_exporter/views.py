@@ -124,8 +124,7 @@ def export_google(request):
             'title': str(offer[1]),
             'description': str(offer[2]),
             'price': price(offer[3], default=1),
-            'url': offer[4],
-            'ads_redirect': redirect_link(offer[4], offer[0], id),
+            'url': redirect_link(offer[4], offer[0], id),
             'image': image_link(offer[5]),
         })
 

@@ -17,6 +17,7 @@ tpl_xml_offer = '''\n<item>\n<g:id>%s</g:id>\n<g:title>%s</g:title>\n<g:descript
 <g:google_product_category>111</g:google_product_category>
 <g:gtin>2112345678900</g:gtin>
 <g:brand>yottos.com</g:brand>
+<custom_label_0>%s</custom_label_0>
 </item>'''
 tpl_xml_end = '''\n</channel>\n</rss>'''
 
@@ -51,7 +52,8 @@ def create_feed(id):
                     View_Lot.ExternalURL AS UrlToMarket,
                     View_Lot.ImgURL,
                     RetargetingID,
-                    View_Lot.Auther 
+                    View_Lot.Auther,
+                    View_Lot.DateCreate 
                     FROM View_Lot 
                     INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
                     INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
@@ -80,7 +82,8 @@ def create_feed(id):
                     text_normalize(str(offer[2])),
                     redirect_link(offer[4], offer[0], id),
                     image_link(offer[5]),
-                    price(offer[3])
+                    price(offer[3]),
+                    offer[8]
                 )
             except Exception as e:
                 print(e)

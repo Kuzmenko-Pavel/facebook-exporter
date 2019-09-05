@@ -54,7 +54,8 @@ def export(request):
                     View_Lot.ExternalURL AS UrlToMarket,
                     View_Lot.ImgURL,
                     RetargetingID,
-                    View_Lot.Auther
+                    View_Lot.Auther,
+                    View_Lot.DateCreate
                     FROM View_Lot 
                     INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
                     INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
@@ -73,6 +74,7 @@ def export(request):
             'price': price(offer[3]),
             'url': redirect_link(offer[4], offer[0], id),
             'image': image_link(offer[5]),
+            'date': offer[8]
         })
 
     return {'offers': offers}
@@ -107,7 +109,8 @@ def export_google(request):
                     View_Lot.ExternalURL AS UrlToMarket,
                     View_Lot.ImgURL,
                     RetargetingID,
-                    View_Lot.Auther
+                    View_Lot.Auther,
+                    View_Lot.DateCreate
                     FROM View_Lot
                     INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
                     INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
@@ -126,6 +129,7 @@ def export_google(request):
             'price': price(offer[3], default=1),
             'url': redirect_link(offer[4], offer[0], id),
             'image': image_link(offer[5]),
+            'date': offer[8]
         })
 
     return {'offers': offers, 'date': datetime.now()}

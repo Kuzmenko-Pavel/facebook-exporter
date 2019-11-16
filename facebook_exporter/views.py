@@ -11,6 +11,8 @@ from pyramid.view import view_config
 
 from facebook_exporter.helper import redirect_link, image_link, price, uuid_to_long
 from facebook_exporter.tasks import create_feed, check_feed
+from facebook_exporter.models.ParentCampaigns import ParentCampaign
+from facebook_exporter.models.ParentOffers import ParentOffer
 
 
 @view_config(route_name='index', renderer='templates/index.html', permission='view')
@@ -45,37 +47,41 @@ def export(request):
             return response
         if static:
             create_feed.delay(id)
-    q = '''
-                    SELECT TOP %s  
-                    View_Lot.LotID AS LotID,
-                    View_Lot.Title AS Title,
-                    ISNULL(View_Lot.Descript, '') AS Description,
-                    ISNULL(View_Lot.Price, '0') Price,
-                    View_Lot.ExternalURL AS UrlToMarket,
-                    View_Lot.ImgURL,
-                    RetargetingID,
-                    View_Lot.Auther,
-                    View_Lot.DateCreate
-                    FROM View_Lot 
-                    INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
-                    INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
-                    WHERE View_Advertise.AdvertiseID = '%s' AND View_Lot.ExternalURL <> '' 
-                        AND View_Lot.isTest = 1 AND View_Lot.isAdvertising = 1
-                    ''' % (count, id)
-    result = request.dbsession.execute(q)
-    for offer in result:
-        offer_id = '%s...%s' % (offer[0], offer[7])
-        if offer[6]:
-            offer_id = '%s...%s' % (offer[6], offer[7])
-        offers.append({
-            'id': offer_id,
-            'title': str(offer[1]),
-            'description': str(offer[2]),
-            'price': price(offer[3]),
-            'url': redirect_link(offer[4], offer[0], id),
-            'image': image_link(offer[5]),
-            'date': offer[8]
-        })
+
+    # q = '''
+    #                 SELECT TOP %s
+    #                 View_Lot.LotID AS LotID,
+    #                 View_Lot.Title AS Title,
+    #                 ISNULL(View_Lot.Descript, '') AS Description,
+    #                 ISNULL(View_Lot.Price, '0') Price,
+    #                 View_Lot.ExternalURL AS UrlToMarket,
+    #                 View_Lot.ImgURL,
+    #                 RetargetingID,
+    #                 View_Lot.Auther,
+    #                 View_Lot.DateCreate
+    #                 FROM View_Lot
+    #                 INNER JOIN LotByAdvertise ON LotByAdvertise.LotID = View_Lot.LotID
+    #                 INNER JOIN View_Advertise ON View_Advertise.AdvertiseID = LotByAdvertise.AdvertiseID
+    #                 WHERE View_Advertise.AdvertiseID = '%s' AND View_Lot.ExternalURL <> ''
+    #                     AND View_Lot.isTest = 1 AND View_Lot.isAdvertising = 1
+    #                 ''' % (count, id)
+    # result = request.dbsession.execute(q)
+
+    campaign = request.dbsession.query(ParentCampaign).filter(ParentCampaign.guid == id).one_or_none()
+    if campaign:
+        for offer in request.dbsession.query(ParentOffer).filter(ParentOffer.id_campaign == campaign.id).all():
+            offer_id = '%s...%s' % (offer[0], offer[7])
+            if offer[6]:
+                offer_id = '%s...%s' % (offer[6], offer[7])
+            offers.append({
+                'id': offer_id,
+                'title': str(offer[1]),
+                'description': str(offer[2]),
+                'price': price(offer[3]),
+                'url': redirect_link(offer[4], offer[0], id),
+                'image': image_link(offer[5]),
+                'date': offer[8]
+            })
 
     return {'offers': offers}
 
@@ -149,45 +155,21 @@ def campaigns(request):
     oreder = request.GET.get('order[0][dir]', 'asc')
     oreder_column = column[request.GET.get('order[0][column]', '')]
     data = []
-    result = request.dbsession.execute('''
-                                SELECT count(*)
-                                FROM View_Advertise a
-                                LEFT OUTER JOIN Users u ON u.UserID = a.UserID
-                                LEFT OUTER JOIN Manager m  ON u.ManagerID = m.id
-                                WHERE m.Name IS NOT NULL AND isActive=1
-                                ''').fetchone()
-    recordsTotal = result[0]
-    q = [
-        'm.Name IS NOT NULL',
-        'isActive=1'
-    ]
+    campaign_count = request.dbsession.query(ParentCampaign).count()
+    recordsTotal = campaign_count
+    q = request.dbsession.query(ParentCampaign)
     if search:
-        sq = [
-            "Title like '%" + search + "%'",
-            "Login like '%" + search + "%'",
-            "m.Name like '%" + search + "%'",
-        ]
-        q.append('(%s)' % ' OR '.join(sq))
-    sql = '''
-                            SELECT
-                            a.AdvertiseID AS AdvertiseID,
-                            Title,
-                            Login, 
-                            m.Name AS Manager,
-                            CASE WHEN MarketID IS NULL THEN 'false' ELSE 'true' END Market
-                            FROM View_Advertise a
-                            LEFT OUTER JOIN Users u ON u.UserID = a.UserID
-                            LEFT OUTER JOIN Manager m  ON u.ManagerID = m.id
-                            LEFT OUTER JOIN MarketByAdvertise mark ON mark.AdvertiseID = a.AdvertiseID
-                            WHERE %s ORDER BY %s %s
-                            ''' % (' AND '.join(q), oreder_column, oreder)
-    result = request.dbsession.execute(sql)
-    for campaign in result:
-        data.append((campaign[1], campaign[2], campaign[3],
+        q = q.filter(
+            ParentCampaign.name.like('%'+search+'%')
+        )
+
+    campaigns = q.all()
+    for campaign in campaigns:
+        data.append((campaign.name,
                      "<a href='%s' target='_blank''>File Export</a>" % request.route_url('export',
-                                                                                         id=campaign[0],
-                                                                                         _query={'static': campaign[4]})
+                                                                                         id=str(campaign.guid).upper())
                      ))
+
     recordsFiltered = len(data)
     data = data[start:start + length]
     return {

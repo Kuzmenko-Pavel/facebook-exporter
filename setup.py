@@ -15,9 +15,11 @@ requires = [
     'waitress',
     'pyodbc',
     'pyramid_tm',
-    'SQLAlchemy',
-    'transaction',
+    'sqlalchemy',
+    'psycopg2',
+    'sqlalchemy-utils',
     'zope.sqlalchemy',
+    'transaction',
     'pyramid_celery'
     ]
 

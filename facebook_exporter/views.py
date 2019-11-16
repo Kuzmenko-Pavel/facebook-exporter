@@ -31,7 +31,7 @@ def check_feeds(request):
 def export(request):
     request.response.content_type = 'application/xml'
     offers = []
-    count = request.GET.get('count', 1000)
+    count = int(request.GET.get('count', 1000))
     static = True if request.GET.get('static') == 'true' else False
     id = request.matchdict.get('id', '').upper()
     dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'static/xml')
@@ -50,7 +50,7 @@ def export(request):
 
     campaign = request.dbsession.query(ParentCampaign).filter(ParentCampaign.guid == id).one_or_none()
     if campaign:
-        for offer in request.dbsession.query(ParentOffer).filter(ParentOffer.id_campaign == campaign.id).all():
+        for offer in request.dbsession.query(ParentOffer).filter(ParentOffer.id_campaign == campaign.id).limit(count).all():
             offer_id = '%s...%s' % (str(offer.guid).upper(), str(offer.guid_account).upper())
             if offer.id_retargeting:
                 offer_id = '%s...%s' % (offer.id_retargeting, str(offer.guid_account).upper())
@@ -92,7 +92,8 @@ def campaigns(request):
     for campaign in campaigns:
         data.append((campaign.name,
                      "<a href='%s' target='_blank''>File Export</a>" % request.route_url('export',
-                                                                                         id=str(campaign.guid).upper())
+                                                                                         id=str(campaign.guid).upper(),
+                                                                                         _query={'static': 'true'})
                      ))
 
     recordsFiltered = len(data)

@@ -30,6 +30,8 @@ def image_link(url):
 def price(p, default=None):
     if default is None:
         default = 0
+    if p is None:
+        p = '0'
     p = price_clean.sub('', p)
     p = re.sub(r'\.+', ".", p)
     p = re.sub(r',+', ",", p)

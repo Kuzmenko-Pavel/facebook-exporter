@@ -60,7 +60,7 @@ def export(request):
                     'title': str(offer.title),
                     'description': str(offer.description),
                     'price': price(offer.price),
-                    'url': redirect_link(offer, campaign, choice[blocks]),
+                    'url': redirect_link(offer, campaign, choice(blocks)),
                     'image': image_link(offer.images[0]),
                 })
 

@@ -20,7 +20,8 @@ requires = [
     'sqlalchemy-utils',
     'zope.sqlalchemy',
     'transaction',
-    'pyramid_celery'
+    'pyramid_celery',
+    'trans'
     ]
 
 tests_require = [

@@ -3,6 +3,7 @@ import html
 from uuid import UUID, uuid4
 import re
 from random import randint
+from .utm_converter import UtmConverter
 
 price_clean = re.compile(r'[^0-9.,]')
 price_float_dot = re.compile(r'[0-9]+\.[0-9]+')
@@ -11,7 +12,8 @@ price_int = re.compile(r'[^0-9]')
 
 
 def redirect_link(offer, campaign, block):
-    offer_url = offer.url
+    utm = UtmConverter(offer, campaign, block)
+    offer_url = utm.url
     id_block = block.id
     id_site = block.id_site
     id_account_right = block.id_account

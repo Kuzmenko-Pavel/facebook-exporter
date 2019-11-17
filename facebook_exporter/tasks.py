@@ -3,12 +3,12 @@ __author__ = 'kuzmenko-pavel'
 import os
 import time
 from shutil import move
+from random import choice
 
 from pyramid_celery import celery_app as app
 
 from facebook_exporter.helper import redirect_link, image_link, price, text_normalize
-from facebook_exporter.models.ParentCampaigns import ParentCampaign
-from facebook_exporter.models.ParentOffers import ParentOffer
+from facebook_exporter.models import ParentCampaign, ParentOffer, ParentBlock
 
 
 tpl_xml_start = '''<?xml version="1.0"?>\n<rss xmlns:g="http://base.google.com/ns/1.0" version="2.0">\n<channel>
@@ -48,6 +48,7 @@ def create_feed(id):
     with open(temp_file, 'w', encoding='utf-8', errors='xmlcharrefreplace') as f:
         f.write(tpl_xml_start)
         f.flush()
+        blocks = dbsession.query(ParentBlock).limit(10).all()
         if campaign:
             for offer in dbsession.query(ParentOffer).filter(ParentOffer.id_campaign == campaign.id).all():
                 data = ''
@@ -59,7 +60,7 @@ def create_feed(id):
                         offer_id,
                         text_normalize(str(offer.title)),
                         text_normalize(str(offer.description)),
-                        redirect_link(offer.url, str(offer.guid).upper(), str(id).upper()),
+                        redirect_link(offer, campaign, choice(blocks)),
                         image_link(offer.images[0]),
                         price(offer.price)
                     )

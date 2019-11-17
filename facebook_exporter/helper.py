@@ -10,13 +10,37 @@ price_float_comma = re.compile(r'[0-9]+,[0-9]+')
 price_int = re.compile(r'[^0-9]')
 
 
-def redirect_link(url, guid, campaign_guid):
-    offer_url = url
-    base64_url = base64.urlsafe_b64encode(str('id=%s\nurl=%s\ncamp=%s' % (
-        guid,
+def redirect_link(offer, campaign, block):
+    offer_url = offer.url
+    id_block = block.id
+    id_site = block.id_site
+    id_account_right = block.id_account
+    id_offer = offer.id
+    id_campaign = campaign.id
+    id_account_left = campaign.id_account
+    disable_filter = campaign.disable_filter or block.disable_filter
+    time_filter = max(campaign.time_filter, block.time_filter)
+    base64_url = base64.urlsafe_b64encode(str('\n'.join([
+            'oid=%d',
+            'bid=%d',
+            'cid=%d',
+            'sid=%d',
+            'aidl=%d',
+            'aidr=%d',
+            'u=%s',
+            'f=%d',
+            'tf=%d'
+        ]) % (
+        id_offer,
+        id_block,
+        id_campaign,
+        id_site,
+        id_account_left,
+        id_account_right,
         offer_url,
-        campaign_guid
-    )).encode('utf-8'))
+        disable_filter,
+        time_filter
+        )).encode('utf-8'))
     params = 'a=%s&amp;b=%s&amp;c=%s' % (randint(1, 9), base64_url.decode('utf-8'), randint(1, 9))
     return 'https://click.yottos.com/click/fb?%s' % params
 

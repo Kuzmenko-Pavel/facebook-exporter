@@ -8,6 +8,7 @@ from zope.sqlalchemy import register
 
 from .ParentCampaigns import ParentCampaign
 from .ParentOffers import ParentOffer
+from .ParentBlocks import ParentBlock
 from .meta import metadata, DBScopedSession
 
 

@@ -1,6 +1,6 @@
 import os
 from collections import defaultdict
-from datetime import datetime
+from random import choice
 
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.httpexceptions import HTTPUnauthorized
@@ -9,10 +9,9 @@ from pyramid.security import forget
 from pyramid.view import forbidden_view_config
 from pyramid.view import view_config
 
-from facebook_exporter.helper import redirect_link, image_link, price, uuid_to_long
+from facebook_exporter.helper import redirect_link, image_link, price
 from facebook_exporter.tasks import create_feed, check_feed
-from facebook_exporter.models.ParentCampaigns import ParentCampaign
-from facebook_exporter.models.ParentOffers import ParentOffer
+from facebook_exporter.models import ParentCampaign, ParentBlock, ParentOffer
 
 
 @view_config(route_name='index', renderer='templates/index.html', permission='view')
@@ -48,20 +47,22 @@ def export(request):
         if static:
             create_feed.delay(id)
 
+    blocks = request.dbsession.query(ParentBlock).limit(10).all()
     campaign = request.dbsession.query(ParentCampaign).filter(ParentCampaign.guid == id).one_or_none()
     if campaign:
         for offer in request.dbsession.query(ParentOffer).filter(ParentOffer.id_campaign == campaign.id).limit(count).all():
             offer_id = '%s...%s' % (str(offer.guid).upper(), str(offer.guid_account).upper())
             if offer.id_retargeting:
                 offer_id = '%s...%s' % (offer.id_retargeting, str(offer.guid_account).upper())
-            offers.append({
-                'id': offer_id,
-                'title': str(offer.title),
-                'description': str(offer.description),
-                'price': price(offer.price),
-                'url': redirect_link(offer.url, str(offer.guid).upper(), str(id).upper()),
-                'image': image_link(offer.images[0]),
-            })
+            if offer.images[0]:
+                offers.append({
+                    'id': offer_id,
+                    'title': str(offer.title),
+                    'description': str(offer.description),
+                    'price': price(offer.price),
+                    'url': redirect_link(offer, campaign, choice[blocks]),
+                    'image': image_link(offer.images[0]),
+                })
 
     return {'offers': offers}
 

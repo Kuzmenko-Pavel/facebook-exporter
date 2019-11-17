@@ -164,9 +164,7 @@ class UtmConverter:
 
     @property
     def url(self):
-        print(self.raw_url)
         url = self.__add_dynamic_param(self.raw_url)
         if self.utm:
             url = self.__add_utm_param(url)
-        print(url)
         return url

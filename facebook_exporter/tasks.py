@@ -30,7 +30,7 @@ def check_feed():
     dbsession = app.conf['PYRAMID_REGISTRY']['dbsession_factory']()
     result = dbsession.query(ParentCampaign).all()
     for adv in result:
-        create_feed.delay(adv.guid)
+        create_feed.delay(str(adv.guid).upper())
     result.close()
     dbsession.commit()
     print('STOP RECREATE FEED')

@@ -22,7 +22,8 @@ def index(request):
 
 @view_config(route_name='check_feed', renderer='json', permission='view')
 def check_feeds(request):
-    check_feed.delay()
+    id = request.GET.get('id')
+    check_feed.delay(id)
     return {}
 
 

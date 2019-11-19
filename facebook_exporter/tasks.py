@@ -25,13 +25,14 @@ tpl_xml_end = '''\n</channel>\n</rss>'''
 
 
 @app.task(ignore_result=True)
-def check_feed():
+def check_feed(id):
     print('START RECREATE FEED')
     dbsession = app.conf['PYRAMID_REGISTRY']['dbsession_factory']()
-    result = dbsession.query(ParentCampaign).all()
-    for adv in result:
+    result = dbsession.query(ParentCampaign)
+    if id:
+        result = result.filter(ParentCampaign.id == id)
+    for adv in result.all():
         create_feed.delay(str(adv.guid).upper())
-    result.close()
     dbsession.commit()
     print('STOP RECREATE FEED')
 

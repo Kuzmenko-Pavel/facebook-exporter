@@ -1,6 +1,9 @@
 # -*- coding: UTF-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+from os import environ, getpid
+import sys
+import socket
 
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
@@ -11,9 +14,17 @@ from .ParentOffers import ParentOffer
 from .ParentBlocks import ParentBlock
 from .meta import metadata, DBScopedSession
 
+server_name = socket.gethostname()
 
-def get_engine(settings, prefix='sqlalchemy.'):
-    return engine_from_config(settings, prefix, echo=False)
+
+def get_engine(settings, prefix='sqlalchemy.', **kwargs):
+    if 'connect_args' not in kwargs.keys():
+        worker = 'Facebook Exporter Web'
+        if '-A' in sys.argv:
+            worker = 'Facebook Exporter Celery'
+        application_name = '%s on %s pid=%s' % (worker, server_name, getpid())
+        kwargs['connect_args'] = {"application_name": application_name}
+    return engine_from_config(settings, prefix, **kwargs)
 
 
 def get_session_factory(engine):

@@ -11,9 +11,6 @@ from facebook_exporter.models.choiceTypes import CurrencyType
 from .custom_arrays import ArrayOfCustomType
 from facebook_exporter.models.meta import ParentBase
 
-force_auto_coercion()
-force_instant_defaults()
-
 
 class ParentOffer(ParentBase):
     __tablename__ = 'v_facebook_offers'

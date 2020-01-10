@@ -8,6 +8,7 @@ import socket
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm import sessionmaker
 from zope.sqlalchemy import register
+from sqlalchemy_utils import force_auto_coercion, force_instant_defaults
 
 from .ParentCampaigns import ParentCampaign
 from .ParentOffers import ParentOffer
@@ -15,6 +16,9 @@ from .ParentBlocks import ParentBlock
 from .meta import metadata, DBScopedSession
 
 server_name = socket.gethostname()
+
+force_auto_coercion()
+force_instant_defaults()
 
 
 def get_engine(settings, prefix='sqlalchemy.', **kwargs):
@@ -43,7 +47,6 @@ def includeme(config):
     settings = config.get_settings()
     config.include('pyramid_tm')
     engine = get_engine(settings)
-    engine.pool._use_threadlocal = True
     metadata.bind = engine
     DBScopedSession.configure(bind=engine)
     session_factory = get_session_factory(engine)

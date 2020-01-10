@@ -10,9 +10,6 @@ from facebook_exporter.models.choiceTypes import CampaignPaymentModel
 
 from facebook_exporter.models.meta import ParentBase
 
-force_auto_coercion()
-force_instant_defaults()
-
 
 class ParentCampaign(ParentBase):
     __tablename__ = 'v_facebook_campaigns'
